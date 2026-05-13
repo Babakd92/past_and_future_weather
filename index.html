@@ -1,0 +1,190 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Zentra Weekly Report Dashboard</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+    <link rel="stylesheet" href="styles.css">
+  </head>
+  <body>
+    <main class="dashboard">
+      <section class="topbar" aria-label="Dashboard overview">
+        <div>
+          <h1>Weather Summary<br> 7-day Historical and 14-day Forecast</h1>
+        </div>
+        <div class="status-strip" aria-label="Sample report status">
+          <span>
+            <b>Device</b>
+            z6-27971
+          </span>
+          <span>
+            <b>Port</b>
+            6
+          </span>
+          <span>
+            <b>Cadence</b>
+            Weekly
+          </span>
+        </div>
+      </section>
+
+      <section class="grid">
+        <aside class="signup-panel" aria-label="Email signup">
+          <div class="panel-heading">
+            <p class="eyebrow">Subscribe</p>
+            <h2>Receive weekly weather updates</h2>
+          </div>
+
+          <form id="signupForm" class="signup-form">
+            <label for="email">Email address</label>
+            <div class="field-row">
+              <input id="email" name="email" type="email" autocomplete="email" placeholder="name@example.com" required>
+              <button type="submit">Request report</button>
+            </div>
+            <p id="formMessage" class="form-message" role="status" aria-live="polite"></p>
+          </form>
+
+          <div class="mini-metrics" aria-label="Report contents">
+            <div>
+              <span>14</span>
+              Daily values
+            </div>
+            <div>
+              <span>2</span>
+              Inline charts
+            </div>
+            <div>
+              <span>XLSX</span>
+              Attachment
+            </div>
+          </div>
+        </aside>
+
+        <section class="preview-panel" aria-label="Sample email preview">
+          <div class="preview-toolbar">
+            <div>
+              <h2>Weekly Weather Data Report</h2>
+            </div>
+            <div class="toolbar-actions">
+              <button id="downloadSummary" class="ghost-button" type="button">Download XLSX</button>
+              <button id="togglePreview" class="ghost-button" type="button" aria-expanded="true">Compact view</button>
+            </div>
+          </div>
+
+          <article id="emailPreview" class="email-preview">
+            <table class="meta-table" aria-label="Sample report metadata">
+              <tr><th>Dashboard updated</th><td id="metaRunTime">--</td></tr>
+              <tr><th>Device</th><td>ATMOS-41 (z6-27971)</td></tr>
+              <tr><th>Historical Period</th><td id="metaHistoricalPeriod">--</td></tr>
+              <tr><th>Forecast Period</th><td id="metaForecastPeriod">--</td></tr>
+            </table>
+
+            <div class="chart-grid" aria-label="Sample email charts">
+              <section class="chart-card">
+                <h3>Precipitation: Past 7 Days and Forecast</h3>
+                <canvas id="precipChart" width="620" height="260"></canvas>
+              </section>
+              <section class="chart-card">
+                <h3>Min and Max Temperature: Past 7 Days and Forecast</h3>
+                <canvas id="tempChart" width="620" height="260"></canvas>
+              </section>
+            </div>
+
+            <section class="forecast-insights" aria-label="Forecast insights">
+              <article class="insight-card">
+                <p class="eyebrow">Precipitation Outlook</p>
+                <h3 id="rainTotal">--</h3>
+                <p id="rainWettest">--</p>
+              </article>
+              <article class="insight-card">
+                <p class="eyebrow">Temperature Outlook</p>
+                <h3 id="comparisonTemp">--</h3>
+                <p id="comparisonRain">--</p>
+              </article>
+              <article class="insight-card">
+                <p class="eyebrow">Risk Flags</p>
+                <div id="riskBadges" class="risk-badges"></div>
+              </article>
+            </section>
+
+            <h3>7-Day Historical Measurements (ZentraCloud)</h3>
+            <div class="table-scroll">
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th>Date</th>
+                    <th>Min Temp (°C)</th>
+                    <th>Max Temp (°C)</th>
+                    <th>Precipitation (mm)</th>
+                    <th>Solar Radiation (W/m2)</th>
+                    <th>Wind Speed (m/s)</th>
+                  </tr>
+                </thead>
+                <tbody id="historicalSummaryBody"></tbody>
+              </table>
+            </div>
+
+            <h3>7-Day Future Forecast (Open-Meteo)</h3>
+            <div class="table-scroll">
+              <table class="data-table forecast-table">
+                <thead>
+                  <tr>
+                    <th>Date</th>
+                    <th>Condition</th>
+                    <th>Max (°C)</th>
+                    <th>Min (°C)</th>
+                    <th>Rain (mm)</th>
+                    <th>Rain %</th>
+                    <th>Wind (km/h)</th>
+                  </tr>
+                </thead>
+                <tbody id="forecastTableBody"></tbody>
+              </table>
+            </div>
+
+            <h3>8-14 Day Future Forecast (Open-Meteo)</h3>
+            <div class="table-scroll">
+              <table class="data-table second-week-forecast-table">
+                <thead>
+                  <tr>
+                    <th>Date</th>
+                    <th>Condition</th>
+                    <th>Max (°C)</th>
+                    <th>Min (°C)</th>
+                    <th>Rain (mm)</th>
+                    <th>Rain %</th>
+                    <th>Wind (km/h)</th>
+                  </tr>
+                </thead>
+                <tbody id="secondWeekForecastTableBody"></tbody>
+              </table>
+            </div>
+          </article>
+        </section>
+
+        <aside class="map-panel" aria-label="Sensor location">
+          <div class="panel-heading">
+            <p class="eyebrow">Location</p>
+            <h2>Microclimate Sensor (ATMOS-41)</h2>
+          </div>
+          <div id="sensorMap" class="sensor-map" role="img" aria-label="Interactive map showing the Zentra sensor location"></div>
+          <dl class="map-details">
+            <div>
+              <dt>Latitude</dt>
+              <dd>40.743336</dd>
+            </div>
+            <div>
+              <dt>Longitude</dt>
+              <dd>-84.24808</dd>
+            </div>
+          </dl>
+        </aside>
+      </section>
+    </main>
+
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="https://unpkg.com/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+    <script src="app.js"></script>
+  </body>
+</html>
